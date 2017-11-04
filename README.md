@@ -3,8 +3,8 @@
 # INTRO
 
 1. Simple UI
-2. Browser and search nomad jobs
-3. Browser and search job allocations
+2. Browse and search nomad jobs
+3. Browse and search job allocations
 4. Browse and search logs
 
 ---
