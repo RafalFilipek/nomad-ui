@@ -2,7 +2,6 @@
 
 
 [![npm version](https://badge.fury.io/js/nomad-ui.svg)](https://badge.fury.io/js/styled-props)
-[![Greenkeeper badge](https://badges.greenkeeper.io/RafalFilipek/nomad-ui.svg)](https://greenkeeper.io/)
 ![downloads](https://img.shields.io/npm/dm/nomad-ui.svg)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 ---
