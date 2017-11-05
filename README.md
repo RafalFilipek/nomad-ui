@@ -7,6 +7,8 @@
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 ---
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/RafalFilipek/nomad-ui.svg)](https://greenkeeper.io/)
+
 # INTRO
 
 1. Simple UI
