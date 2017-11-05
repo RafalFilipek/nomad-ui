@@ -25,7 +25,7 @@
     "start": "node ./lib/index.js"
   },
   "dependencies": {
-    "axios": "^0.16.2",
+    "axios": "^0.17.0",
     "blessed": "^0.1.81",
     "mobx": "^3.3.1"
   },
