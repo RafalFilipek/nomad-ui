@@ -1,12 +1,9 @@
 #! /usr/bin/env node
 
-const loudRejection = require('loud-rejection');
 import * as blessed from 'blessed';
 import { observable, reaction } from 'mobx';
 import axios from 'axios';
 import { spawn } from 'child_process';
-
-loudRejection();
 
 if (!process.env.NOMAD_ADDR) {
   console.log('Missing NOMAD_ADDR in `env`.');
@@ -52,7 +49,7 @@ class App {
     tags: true,
     parent: this.screen,
     content:
-      '{bold}{underline}NOMAD UI{/underline}{/bold}\n\n\nLoading data...\n\n\n{right}with <3 from Rafał{/right}',
+    '{bold}{underline}NOMAD UI{/underline}{/bold}\n\n\nLoading data...\n\n\n{right}with <3 from Rafał{/right}',
   });
 
   jobs = blessed.list({

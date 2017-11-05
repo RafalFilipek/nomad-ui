@@ -11,7 +11,7 @@
 
 # TODO
 
-1. [ ] commit some code 
+1. [x] commit some code 
 2. [ ] publish working version
 3. [ ] write some docs
 4. [ ] add `page up` & `page down` support

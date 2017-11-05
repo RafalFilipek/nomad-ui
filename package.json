@@ -1,20 +1,31 @@
 {
   "name": "nomad-ui",
-  "version": "1.0.0",
+  "description": "Command line nomad explorer.",
+  "version": "1.0.1",
   "main": "index.js",
-  "license": "MIT",
   "bin": "./lib/index.js",
+  "author": "Rafał Filipek <rafal.filipek@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "nomad",
+    "cli",
+    "blessed",
+    "terminal"
+  ],
+  "scripts": {
+    "compile": "babel -d lib src",
+    "start": "node ./lib/index.js"
+  },
   "dependencies": {
     "axios": "^0.16.2",
     "blessed": "^0.1.81",
-    "cross-spawn": "^5.1.0",
-    "loud-rejection": "^1.6.0",
     "mobx": "^3.3.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1"
   }
 }
