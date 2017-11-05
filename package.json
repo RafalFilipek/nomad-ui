@@ -1,7 +1,15 @@
 {
   "name": "nomad-ui",
-  "description": "Command line nomad explorer.",
   "version": "1.0.1",
+  "description": "Command line nomad explorer.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RafalFilipek/nomad-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RafalFilipek/nomad-ui/issues"
+  },
+  "homepage": "https://github.com/RafalFilipek/nomad-ui",
   "main": "index.js",
   "bin": "./lib/index.js",
   "author": "Rafał Filipek <rafal.filipek@gmail.com>",
