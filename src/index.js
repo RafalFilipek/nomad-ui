@@ -1,9 +1,10 @@
 #! /usr/bin/env node
 
 import * as blessed from 'blessed';
-import { observable, reaction } from 'mobx';
+import { observable, reaction, extendObservable } from 'mobx';
 import axios from 'axios';
 import { spawn } from 'child_process';
+import chalk from 'chalk';
 
 if (!process.env.NOMAD_ADDR) {
   console.log('Missing NOMAD_ADDR in `env`.');
@@ -18,10 +19,10 @@ const styles = {
     selected: {
       fg: 'green',
     },
-    focus: {
-      selected: {
-        fg: 'black',
-        bg: 'green',
+    item: {
+      fg: 'white',
+      focus: {
+        fg: 'green',
       },
     },
   },
@@ -49,7 +50,7 @@ class App {
     tags: true,
     parent: this.screen,
     content:
-    '{bold}{underline}NOMAD UI{/underline}{/bold}\n\n\nLoading data...\n\n\n{right}with <3 from Rafał{/right}',
+      '{bold}{underline}NOMAD UI{/underline}{/bold}\n\n\nLoading data...\n\n\n{right}with <3 from Rafał{/right}',
   });
 
   jobs = blessed.list({
@@ -73,7 +74,7 @@ class App {
     content: 'Select job',
     parent: this.screen,
     keys: true,
-    mouse: true,
+    // mouse: true,
     hidden: true,
     ...styles,
   });
@@ -82,39 +83,51 @@ class App {
     scrollable: true,
     top: 0,
     left: '50%',
+    bottom: 3,
     width: '50%',
     label: 'Logs',
-    mouse: true,
+    // mouse: true,
     keys: true,
-    mouse: true,
+    // mouse: true,
     parent: this.screen,
     hidden: true,
     ...styles,
   });
 
-  debug = blessed.box({
-    bottom: 2,
-    right: 2,
-    width: '40%',
-    height: 30,
+  autoscrollInfo = blessed.text({
+    content: 'AutoScroll: OFF',
+    top: 0,
+    right: 1,
+    parent: this.screen,
+  });
+
+  allocationInfo = blessed.box({
+    content: 'Allocation info',
+    bottom: 0,
+    height: 3,
+    left: '50%',
+    width: '50%',
+    parent: this.screen,
     border: {
       type: 'line',
     },
-    parent: this.screen,
-    hidden: true,
   });
 
-  @observable
-  data = {
-    jobs: [],
-    allocs: [],
-  };
+  focusableElements = [this.jobs, this.allocs, this.logs];
+  titles = ['Jobs', 'Allocations', 'Logs'];
+
+  @observable autoscrollLogs = false;
 
   cmd = null;
 
-  @observable searchValue = '';
-
   constructor() {
+    extendObservable(this, {
+      searchValue: '',
+      data: {
+        jobs: [],
+        allocs: [],
+      },
+    });
     this.screen.on('keypress', (ch, key) => {
       if (key.name === 'return') {
         this.searchValue = '';
@@ -123,20 +136,23 @@ class App {
           0,
           this.searchValue.length - 1
         );
+      } else if (key.shift && key.name === 't') {
+        this.toggleAutoScroll();
       } else if (ch) {
         this.searchValue += ch;
       }
     });
 
     reaction(
-      () => this.searchValue.length,
       () => {
-        this.debug.setContent(this.searchValue);
+        return this.searchValue.length;
+      },
+      () => {
         if (this.searchValue.length > 0) {
           this.screen.focused.select(
             this.screen.focused.fuzzyFind(this.searchValue)
           );
-          this.screen.render();
+          // this.screen.render();
         }
       }
     );
@@ -146,41 +162,23 @@ class App {
     });
 
     this.screen.key('left', () => {
-      if (this.screen.focused === this.jobs) {
-        this.logs.focus();
-      } else if (this.screen.focused === this.allocs) {
-        this.jobs.focus();
-      } else if (this.screen.focused === this.logs) {
-        this.allocs.focus();
-      }
-      this.searchValue = '';
-      this.screen.render();
+      this.focusPrev();
+      // this.screen.render();
     });
 
     this.screen.key('right', () => {
-      if (this.screen.focused === this.jobs) {
-        this.allocs.focus();
-      } else if (this.screen.focused === this.allocs) {
-        this.logs.focus();
-      } else if (this.screen.focused === this.logs) {
-        this.jobs.focus();
-      }
-      this.searchValue = '';
-      this.screen.render();
+      this.focusNext();
+      // this.screen.render();
+      this.jobs.select;
     });
 
-    this.screen.on('');
-
     this.jobs.on('select', item => {
-      this.searchValue = '';
-      this.fetchAllocs(item);
-      this.allocs.focus();
+      this.fetchAllocs(item).then(() => this.changeFocus(this.allocs));
     });
 
     this.allocs.on('select', item => {
-      this.searchValue = '';
-      this.streamLogs(item);
-      this.logs.focus();
+      this.streamAllocationInfo(item);
+      this.changeFocus(this.logs);
     });
 
     reaction(
@@ -188,7 +186,7 @@ class App {
       () => {
         this.jobs.clearItems();
         this.jobs.setItems(this.data.jobs.map(el => el.Name));
-        this.screen.render();
+        // this.screen.render();
       },
       true
     );
@@ -198,7 +196,7 @@ class App {
       () => {
         this.allocs.clearItems();
         this.allocs.setItems(this.data.allocs.map(el => el.Name));
-        this.screen.render();
+        // this.screen.render();
       },
       true
     );
@@ -213,13 +211,54 @@ class App {
         this.jobs.show();
         this.allocs.show();
         this.logs.show();
-        this.jobs.focus();
+        this.changeFocus(this.jobs);
         this.screen.render();
       },
       error => {
         console.log(error);
       }
     );
+  }
+
+  toggleAutoScroll() {
+    this.autoscrollLogs = !this.autoscrollLogs;
+    this.autoscrollInfo.setContent(
+      'AutoScroll: ' + (this.autoscrollLogs ? 'ON' : 'OFF')
+    );
+    this.screen.render();
+  }
+
+  focusNext() {
+    const index = this.focusableElements.indexOf(this.screen.focused);
+    const element = this.focusableElements[
+      (index + 1) % this.focusableElements.length
+    ];
+    this.changeFocus(element);
+    this.screen.fo;
+  }
+
+  focusPrev() {
+    const index = this.focusableElements.indexOf(this.screen.focused) - 1;
+    const element = this.focusableElements[index === -1 ? 2 : index];
+    this.changeFocus(element);
+  }
+
+  getElementTitle(element, active) {
+    const title = this.titles[this.focusableElements.indexOf(element)];
+    if (active) {
+      return chalk.white.bgBlue(' ' + title + ' ');
+    }
+    return title;
+  }
+
+  changeFocus(element) {
+    this.screen.focused.setLabel(this.getElementTitle(element, false));
+    const newElement = element;
+    element.focus();
+    newElement.setLabel(this.getElementTitle(newElement, true));
+    this.searchValue = '';
+    this.screen.render();
+    this.jobs.set;
   }
 
   async fetchJobs() {
@@ -234,23 +273,38 @@ class App {
     this.data.allocs = response.data;
   }
 
-  streamLogs(item) {
+  async fetchAllocStatus(id) {
+    const response = await axios.get(
+      process.env.NOMAD_ADDR + '/v1/allocation/' + id
+    );
+    const info = response.data.SharedResources;
+    this.allocationInfo.setContent(
+      `CPU: ${chalk.bold(info.CPU)}\t Memory: ${chalk.bold(
+        info.MemoryMB
+      )}\t Disk: ${chalk.bold(info.DiskMB)}\t Networks: ${chalk.bold(
+        info.Networks
+      )} `
+    );
+    this.screen.render();
+  }
+
+  streamAllocationInfo(item) {
     if (this.cmd) {
       this.cmd.kill();
     }
-    this.cmd = spawn('nomad', [
-      'logs',
-      '-tail',
-      '-f',
-      this.data.allocs.find(el => el.Name === item.getText()).ID,
-    ]);
+    const id = this.data.allocs.find(el => el.Name === item.getText()).ID;
+    this.cmd = spawn('nomad', ['logs', '-tail', '-f', id]);
+    this.fetchAllocStatus(id);
     this.logs.clearItems();
     this.cmd.stdout.on('data', data => {
       data
         .toString()
         .split('\n')
         .map(el => this.logs.pushItem(el));
-      this.screen.render();
+      if (this.autoscrollLogs) {
+        this.logs.setScrollPerc(100);
+      }
+      // this.screen.render();
     });
   }
 }
