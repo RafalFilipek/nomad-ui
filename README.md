@@ -8,6 +8,20 @@
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 ---
 
+# INSTALLATION
+
+```
+yarn global add nomad-ui
+```
+
+---
+
+# PREREQUISITES 
+
+`NOMAD_ADDR` in `env`
+
+---
+
 # INTRO
 
 1. Simple UI
@@ -17,13 +31,22 @@
 
 ---
 
+# SHORTCUST
+
+ * fuzzy search is always enabled for active element
+ * `arrow left` / `arrow right` to navigate between elements
+ * `shift+t` toggle auto scroll for logs element
+ * `ctrl+c` exit
+ 
+---
+
 # TODO
 
 1. [x] commit some code 
 2. [ ] publish working version
-3. [ ] write some docs
+3. [x] write some docs
 4. [ ] add `page up` & `page down` support
-5. [ ] auto scroll logs
+5. [x] auto scroll logs
 6. [ ] code:
    1. [x] make it work 
    2. [ ] make it right
