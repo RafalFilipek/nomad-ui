@@ -14,13 +14,9 @@
 yarn global add nomad-ui
 ```
 
----
-
 # PREREQUISITES 
 
 `NOMAD_ADDR` in `env`
-
----
 
 # INTRO
 
@@ -29,8 +25,6 @@ yarn global add nomad-ui
 3. Browse and search job allocations
 4. Browse and search logs
 
----
-
 # SHORTCUST
 
  * fuzzy search is always enabled for active element
@@ -38,8 +32,6 @@ yarn global add nomad-ui
  * `shift+t` toggle auto scroll for logs element
  * `ctrl+c` exit
  
----
-
 # TODO
 
 1. [x] commit some code 
