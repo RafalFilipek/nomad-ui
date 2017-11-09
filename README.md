@@ -14,7 +14,7 @@
 yarn global add nomad-ui
 ```
 
-# PREREQUISITES 
+# PREREQUISITES
 
 `NOMAD_ADDR` in `env`
 
@@ -31,17 +31,17 @@ yarn global add nomad-ui
  * `arrow left` / `arrow right` to navigate between elements
  * `shift+t` toggle auto scroll for logs element
  * `ctrl+c` exit
- 
+
 # TODO
 
-1. [x] commit some code 
-2. [ ] publish working version
+1. [x] commit some code
+2. [x] publish working version
 3. [x] write some docs
 4. [ ] add `page up` & `page down` support
 5. [x] auto scroll logs
 6. [ ] code:
-   1. [x] make it work 
+   1. [x] make it work
    2. [ ] make it right
    3. [ ] make it fast
-   
-   
+
+
