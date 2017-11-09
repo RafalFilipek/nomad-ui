@@ -8,31 +8,35 @@
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 ---
 
-# INSTALLATION
+## INSTALLATION
 
 ```
 yarn global add nomad-ui
 ```
 
-# PREREQUISITES
+## PREREQUISITES
 
 `NOMAD_ADDR` in `env`
 
-# INTRO
+## INTRO
 
 1. Simple UI
 2. Browse and search nomad jobs
 3. Browse and search job allocations
 4. Browse and search logs
 
-# SHORTCUST
+## SEARCHING
 
- * fuzzy search is always enabled for active element
+* fuzzy search is always enabled for active element
+
+## SHORTCUST
+
+ * `escape` to clear current fuzzy search phrase
  * `arrow left` / `arrow right` to navigate between elements
  * `shift+t` toggle auto scroll for logs element
  * `ctrl+c` exit
 
-# TODO
+## TODO
 
 1. [x] commit some code
 2. [x] publish working version
