@@ -74,7 +74,7 @@ class App {
     content: 'Select job',
     parent: this.screen,
     keys: true,
-    // mouse: true,
+    mouse: true,
     hidden: true,
     ...styles,
   });
@@ -83,12 +83,11 @@ class App {
     scrollable: true,
     top: 0,
     left: '50%',
-    bottom: 3,
+    bottom: 0,
     width: '50%',
     label: 'Logs',
-    // mouse: true,
     keys: true,
-    // mouse: true,
+    mouse: true,
     parent: this.screen,
     hidden: true,
     ...styles,
@@ -111,6 +110,7 @@ class App {
     border: {
       type: 'line',
     },
+    hidden: true,
   });
 
   focusableElements = [this.jobs, this.allocs, this.logs];
@@ -129,7 +129,7 @@ class App {
       },
     });
     this.screen.on('keypress', (ch, key) => {
-      if (key.name === 'return') {
+      if (key.name === 'return' || key.name === 'escape') {
         this.searchValue = '';
       } else if (key.name === 'backspace') {
         this.searchValue = this.searchValue.substr(
@@ -152,23 +152,20 @@ class App {
           this.screen.focused.select(
             this.screen.focused.fuzzyFind(this.searchValue)
           );
-          // this.screen.render();
         }
       }
     );
 
-    this.screen.key(['escape', 'C-c'], () => {
+    this.screen.key(['C-c'], () => {
       return process.exit(0);
     });
 
     this.screen.key('left', () => {
       this.focusPrev();
-      // this.screen.render();
     });
 
     this.screen.key('right', () => {
       this.focusNext();
-      // this.screen.render();
       this.jobs.select;
     });
 
@@ -186,7 +183,6 @@ class App {
       () => {
         this.jobs.clearItems();
         this.jobs.setItems(this.data.jobs.map(el => el.Name));
-        // this.screen.render();
       },
       true
     );
@@ -196,7 +192,6 @@ class App {
       () => {
         this.allocs.clearItems();
         this.allocs.setItems(this.data.allocs.map(el => el.Name));
-        // this.screen.render();
       },
       true
     );
@@ -274,27 +269,49 @@ class App {
   }
 
   async fetchAllocStatus(id) {
+    console.log(id);
     const response = await axios.get(
       process.env.NOMAD_ADDR + '/v1/allocation/' + id
     );
-    const info = response.data.SharedResources;
-    this.allocationInfo.setContent(
-      `CPU: ${chalk.bold(info.CPU)}\t Memory: ${chalk.bold(
-        info.MemoryMB
-      )}\t Disk: ${chalk.bold(info.DiskMB)}\t Networks: ${chalk.bold(
-        info.Networks
-      )} `
-    );
+
+    const info = response.data.Job.TaskGroups;
+
+    const content = [];
+
+    info.forEach(group => {
+      content.push(chalk.bold.underline('Group: ' + group.Name));
+      group.Tasks.forEach(task => {
+        content.push('Task: ' + chalk.bold(task.Name));
+        content.push(
+          `CPU: ${chalk.bold.inverse(
+            ' ' + task.Resources.CPU + ' '
+          )}\t Memory: ${chalk.bold.inverse(
+            ' ' + task.Resources.MemoryMB + ' '
+          )}\t Disk: ${chalk.bold.inverse(
+            ' ' + task.Resources.DiskMB + ' '
+          )}\t IOPS: ${chalk.bold.inverse(task.Resources.IOPS)}`
+        );
+      });
+    });
+
+    this.allocationInfo.height = content.length;
+    this.allocationInfo.setContent(content.join('\n'));
     this.screen.render();
   }
 
   streamAllocationInfo(item) {
     if (this.cmd) {
       this.cmd.kill();
+      clearTimeout(this.allocationInfoTimeoutId);
     }
     const id = this.data.allocs.find(el => el.Name === item.getText()).ID;
     this.cmd = spawn('nomad', ['logs', '-tail', '-f', id]);
-    this.fetchAllocStatus(id);
+    // @TODO: this
+    // this.fetchAllocStatus(id).then(() => {
+    //   this.allocationInfoTimeoutId = setTimeout(() => {
+    //     this.fetchAllocStatus(id);
+    //   }, 1000);
+    // });
     this.logs.clearItems();
     this.cmd.stdout.on('data', data => {
       data
@@ -304,7 +321,6 @@ class App {
       if (this.autoscrollLogs) {
         this.logs.setScrollPerc(100);
       }
-      // this.screen.render();
     });
   }
 }
