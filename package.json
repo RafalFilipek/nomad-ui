@@ -23,7 +23,7 @@
     "axios": "^0.17.0",
     "blessed": "^0.1.81",
     "chalk": "^2.3.0",
-    "mobx": "^3.3.1"
+    "mobx": "^5.10.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
